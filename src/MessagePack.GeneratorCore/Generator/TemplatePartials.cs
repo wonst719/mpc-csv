@@ -34,11 +34,4 @@ namespace MessagePackCompiler.Generator
 
         public EnumSerializationInfo[] EnumSerializationInfos { get; set; }
     }
-
-    public partial class UnionTemplate
-    {
-        public string Namespace { get; set; }
-
-        public UnionSerializationInfo[] UnionSerializationInfos { get; set; }
-    }
 }

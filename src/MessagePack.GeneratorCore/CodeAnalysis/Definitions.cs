@@ -176,24 +176,4 @@ namespace MessagePackCompiler.CodeAnalysis
             return this.FullName.GetHashCode();
         }
     }
-
-    public class UnionSerializationInfo : IResolverRegisterInfo
-    {
-        public string Namespace { get; set; }
-
-        public string Name { get; set; }
-
-        public string FullName { get; set; }
-
-        public string FormatterName => (this.Namespace == null ? this.Name : this.Namespace + "." + this.Name) + "Formatter";
-
-        public UnionSubTypeInfo[] SubTypes { get; set; }
-    }
-
-    public class UnionSubTypeInfo
-    {
-        public string Type { get; set; }
-
-        public int Key { get; set; }
-    }
 }

@@ -24,7 +24,6 @@ namespace MessagePackCompiler.CodeAnalysis
         internal readonly INamedTypeSymbol Task;
         internal readonly INamedTypeSymbol TaskOfT;
         internal readonly INamedTypeSymbol MessagePackObjectAttribute;
-        internal readonly INamedTypeSymbol UnionAttribute;
         internal readonly INamedTypeSymbol SerializationConstructorAttribute;
         internal readonly INamedTypeSymbol KeyAttribute;
         internal readonly INamedTypeSymbol IgnoreAttribute;
@@ -51,12 +50,6 @@ namespace MessagePackCompiler.CodeAnalysis
             if (MessagePackObjectAttribute == null)
             {
                 throw new InvalidOperationException("failed to get metadata of MessagePack.MessagePackObjectAttribute");
-            }
-
-            UnionAttribute = compilation.GetTypeByMetadataName("MessagePack.UnionAttribute");
-            if (UnionAttribute == null)
-            {
-                throw new InvalidOperationException("failed to get metadata of MessagePack.UnionAttribute");
             }
 
             SerializationConstructorAttribute = compilation.GetTypeByMetadataName("MessagePack.SerializationConstructorAttribute");
@@ -268,7 +261,6 @@ namespace MessagePackCompiler.CodeAnalysis
         private List<ObjectSerializationInfo> collectedObjectInfo;
         private List<EnumSerializationInfo> collectedEnumInfo;
         private List<GenericSerializationInfo> collectedGenericInfo;
-        private List<UnionSerializationInfo> collectedUnionInfo;
 
         public TypeCollector(Compilation compilation, bool disallowInternal, bool isForceUseMap, Action<string> logger)
         {
@@ -293,9 +285,7 @@ namespace MessagePackCompiler.CodeAnalysis
                     return false;
                 })
                 .Where(x =>
-                       ((x.TypeKind == TypeKind.Interface) && x.GetAttributes().Any(x2 => x2.AttributeClass.ApproximatelyEqual(typeReferences.UnionAttribute)))
-                    || ((x.TypeKind == TypeKind.Class && x.IsAbstract) && x.GetAttributes().Any(x2 => x2.AttributeClass.ApproximatelyEqual(typeReferences.UnionAttribute)))
-                    || ((x.TypeKind == TypeKind.Class) && x.GetAttributes().Any(x2 => x2.AttributeClass.ApproximatelyEqual(typeReferences.MessagePackObjectAttribute)))
+                    ((x.TypeKind == TypeKind.Class) && x.GetAttributes().Any(x2 => x2.AttributeClass.ApproximatelyEqual(typeReferences.MessagePackObjectAttribute)))
                     || ((x.TypeKind == TypeKind.Struct) && x.GetAttributes().Any(x2 => x2.AttributeClass.ApproximatelyEqual(typeReferences.MessagePackObjectAttribute))))
                 .ToArray();
         }
@@ -306,11 +296,10 @@ namespace MessagePackCompiler.CodeAnalysis
             this.collectedObjectInfo = new List<ObjectSerializationInfo>();
             this.collectedEnumInfo = new List<EnumSerializationInfo>();
             this.collectedGenericInfo = new List<GenericSerializationInfo>();
-            this.collectedUnionInfo = new List<UnionSerializationInfo>();
         }
 
         // EntryPoint
-        public (ObjectSerializationInfo[] objectInfo, EnumSerializationInfo[] enumInfo, GenericSerializationInfo[] genericInfo, UnionSerializationInfo[] unionInfo) Collect()
+        public (ObjectSerializationInfo[] objectInfo, EnumSerializationInfo[] enumInfo, GenericSerializationInfo[] genericInfo) Collect()
         {
             this.ResetWorkspace();
 
@@ -322,8 +311,8 @@ namespace MessagePackCompiler.CodeAnalysis
             return (
                 this.collectedObjectInfo.OrderBy(x => x.FullName).ToArray(),
                 this.collectedEnumInfo.OrderBy(x => x.FullName).ToArray(),
-                this.collectedGenericInfo.Distinct().OrderBy(x => x.FullName).ToArray(),
-                this.collectedUnionInfo.OrderBy(x => x.FullName).ToArray());
+                this.collectedGenericInfo.Distinct().OrderBy(x => x.FullName).ToArray()
+                );
         }
 
         // Gate of recursive collect
@@ -375,12 +364,6 @@ namespace MessagePackCompiler.CodeAnalysis
                 return;
             }
 
-            if (type.TypeKind == TypeKind.Interface || (type.TypeKind == TypeKind.Class && type.IsAbstract))
-            {
-                this.CollectUnion(type);
-                return;
-            }
-
             this.CollectObject(type);
             return;
         }
@@ -396,30 +379,6 @@ namespace MessagePackCompiler.CodeAnalysis
             };
 
             this.collectedEnumInfo.Add(info);
-        }
-
-        private void CollectUnion(INamedTypeSymbol type)
-        {
-            System.Collections.Immutable.ImmutableArray<TypedConstant>[] unionAttrs = type.GetAttributes().Where(x => x.AttributeClass.ApproximatelyEqual(this.typeReferences.UnionAttribute)).Select(x => x.ConstructorArguments).ToArray();
-            if (unionAttrs.Length == 0)
-            {
-                throw new MessagePackGeneratorResolveFailedException("Serialization Type must mark UnionAttribute." + " type: " + type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat));
-            }
-
-            // 0, Int  1, SubType
-            var info = new UnionSerializationInfo
-            {
-                Name = type.Name,
-                Namespace = type.ContainingNamespace.IsGlobalNamespace ? null : type.ContainingNamespace.ToDisplayString(),
-                FullName = type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat),
-                SubTypes = unionAttrs.Select(x => new UnionSubTypeInfo
-                {
-                    Key = (int)x[0].Value,
-                    Type = (x[1].Value as ITypeSymbol).ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat),
-                }).OrderBy(x => x.Key).ToArray(),
-            };
-
-            this.collectedUnionInfo.Add(info);
         }
 
         private void CollectArray(IArrayTypeSymbol array)

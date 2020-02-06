@@ -55,7 +55,7 @@ namespace MessagePackCompiler
                 sw.Restart();
                 logger("Method Collect Start");
 
-                var (objectInfo, enumInfo, genericInfo, unionInfo) = collector.Collect();
+                var (objectInfo, enumInfo, genericInfo) = collector.Collect();
 
                 logger("Method Collect Complete:" + sw.Elapsed.ToString());
 
@@ -83,34 +83,18 @@ namespace MessagePackCompiler
                         })
                         .ToArray();
 
-                    var unionFormatterTemplates = unionInfo
-                        .GroupBy(x => x.Namespace)
-                        .Select(x => new UnionTemplate()
-                        {
-                            Namespace = namespaceDot + "Formatters" + ((x.Key == null) ? string.Empty : "." + x.Key),
-                            UnionSerializationInfos = x.ToArray(),
-                        })
-                        .ToArray();
-
                     var resolverTemplate = new ResolverTemplate()
                     {
                         Namespace = namespaceDot + "Resolvers",
                         FormatterNamespace = namespaceDot + "Formatters",
                         ResolverName = resolverName,
-                        RegisterInfos = genericInfo.Cast<IResolverRegisterInfo>().Concat(enumInfo).Concat(unionInfo).Concat(objectInfo).ToArray(),
+                        RegisterInfos = genericInfo.Cast<IResolverRegisterInfo>().Concat(enumInfo).Concat(objectInfo).ToArray(),
                     };
 
                     var sb = new StringBuilder();
                     sb.AppendLine(resolverTemplate.TransformText());
                     sb.AppendLine();
                     foreach (var item in enumFormatterTemplates)
-                    {
-                        var text = item.TransformText();
-                        sb.AppendLine(text);
-                    }
-
-                    sb.AppendLine();
-                    foreach (var item in unionFormatterTemplates)
                     {
                         var text = item.TransformText();
                         sb.AppendLine(text);
@@ -161,30 +145,18 @@ namespace MessagePackCompiler
                         await OutputToDirAsync(output, template.Namespace, x.Name + "Formatter", multioutSymbol, text, cancellationToken).ConfigureAwait(false);
                     }
 
-                    foreach (var x in unionInfo)
-                    {
-                        var template = new UnionTemplate()
-                        {
-                            Namespace = namespaceDot + "Formatters" + ((x.Namespace == null) ? string.Empty : "." + x.Namespace),
-                            UnionSerializationInfos = new[] { x },
-                        };
-
-                        var text = template.TransformText();
-                        await OutputToDirAsync(output, template.Namespace, x.Name + "Formatter", multioutSymbol, text, cancellationToken).ConfigureAwait(false);
-                    }
-
                     var resolverTemplate = new ResolverTemplate()
                     {
                         Namespace = namespaceDot + "Resolvers",
                         FormatterNamespace = namespaceDot + "Formatters",
                         ResolverName = resolverName,
-                        RegisterInfos = genericInfo.Cast<IResolverRegisterInfo>().Concat(enumInfo).Concat(unionInfo).Concat(objectInfo).ToArray(),
+                        RegisterInfos = genericInfo.Cast<IResolverRegisterInfo>().Concat(enumInfo).Concat(objectInfo).ToArray(),
                     };
 
                     await OutputToDirAsync(output, resolverTemplate.Namespace, resolverTemplate.ResolverName, multioutSymbol, resolverTemplate.TransformText(), cancellationToken).ConfigureAwait(false);
                 }
 
-                if (objectInfo.Length == 0 && enumInfo.Length == 0 && genericInfo.Length == 0 & unionInfo.Length == 0)
+                if (objectInfo.Length == 0 && enumInfo.Length == 0 && genericInfo.Length == 0)
                 {
                     logger("Generated result is empty, unexpected result?");
                 }
