@@ -35,6 +35,7 @@ namespace MessagePackCompiler.CodeAnalysis
         internal readonly INamedTypeSymbol CsvIgnoreAttribute;
         internal readonly INamedTypeSymbol SerializationConstructorAttribute;
         internal readonly INamedTypeSymbol IgnoreDataMemberAttribute;
+        internal readonly INamedTypeSymbol TypeConverterAttribute;
 #pragma warning restore SA1401 // Fields should be private
 
         public ReferenceSymbols(Compilation compilation, Action<string> logger)
@@ -116,6 +117,12 @@ namespace MessagePackCompiler.CodeAnalysis
             if (IgnoreDataMemberAttribute == null)
             {
                 logger("failed to get metadata of System.Runtime.Serialization.IgnoreDataMemberAttribute");
+            }
+
+            TypeConverterAttribute = compilation.GetTypeByMetadataName("System.ComponentModel.TypeConverterAttribute");
+            if (TypeConverterAttribute == null)
+            {
+                logger("failed to get metadata of System.ComponentModel.TypeConverterAttribute");
             }
         }
     }
@@ -383,6 +390,7 @@ namespace MessagePackCompiler.CodeAnalysis
                 }
 
                 //var customFormatterAttr = item.GetAttributes().FirstOrDefault(x => x.AttributeClass.ApproximatelyEqual(this.typeReferences.MessagePackFormatterAttribute))?.ConstructorArguments[0].Value as INamedTypeSymbol;
+                var customFormatterAttr = item.Type.GetAttributes().FirstOrDefault(x => x.AttributeClass.ApproximatelyEqual(this.typeReferences.TypeConverterAttribute))?.ConstructorArguments[0].Value as INamedTypeSymbol;
 
                 var member = new MemberSerializationInfo
                 {
@@ -394,7 +402,7 @@ namespace MessagePackCompiler.CodeAnalysis
                     Name = item.Name,
                     Type = item.Type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat),
                     ShortTypeName = item.Type.ToDisplayString(BinaryWriteFormat),
-                    //CustomFormatterTypeName = customFormatterAttr?.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat),
+                    CustomFormatterTypeName = customFormatterAttr?.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat),
                 };
                 if (!member.IsReadable && !member.IsWritable)
                 {
@@ -420,6 +428,7 @@ namespace MessagePackCompiler.CodeAnalysis
                 }
 
                 //var customFormatterAttr = item.GetAttributes().FirstOrDefault(x => x.AttributeClass.ApproximatelyEqual(this.typeReferences.MessagePackFormatterAttribute))?.ConstructorArguments[0].Value as INamedTypeSymbol;
+                var customFormatterAttr = item.Type.GetAttributes().FirstOrDefault(x => x.AttributeClass.ApproximatelyEqual(this.typeReferences.TypeConverterAttribute))?.ConstructorArguments[0].Value as INamedTypeSymbol;
 
                 var member = new MemberSerializationInfo
                 {
@@ -431,7 +440,7 @@ namespace MessagePackCompiler.CodeAnalysis
                     Name = item.Name,
                     Type = item.Type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat),
                     ShortTypeName = item.Type.ToDisplayString(BinaryWriteFormat),
-                    //CustomFormatterTypeName = customFormatterAttr?.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat),
+                    CustomFormatterTypeName = customFormatterAttr?.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat),
                 };
                 if (!member.IsReadable && !member.IsWritable)
                 {

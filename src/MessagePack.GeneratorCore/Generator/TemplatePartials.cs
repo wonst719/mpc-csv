@@ -10,6 +10,13 @@ using MessagePackCompiler.CodeAnalysis;
 
 namespace MessagePackCompiler.Generator
 {
+    public partial class CsvSerializerTemplate
+    {
+        public string Namespace { get; set; }
+
+        public ObjectSerializationInfo[] ObjectSerializationInfos { get; set; }
+    }
+
     public partial class FormatterTemplate
     {
         public string Namespace { get; set; }

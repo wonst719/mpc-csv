@@ -114,6 +114,18 @@ namespace MessagePackCompiler.CodeAnalysis
             ////"string",
         });
 
+        private readonly HashSet<string> primitiveIntegerTypes = new HashSet<string>(new string[]
+        {
+            "short",
+            "int",
+            "long",
+            "ushort",
+            "uint",
+            "ulong",
+            "byte",
+            "sbyte",
+        });
+
         public string GetSerializeMethodString()
         {
             if (CustomFormatterTypeName != null)
@@ -132,18 +144,48 @@ namespace MessagePackCompiler.CodeAnalysis
 
         public string GetDeserializeMethodString()
         {
+            // TODO: 더 깔끔하게 만들자.
             if (CustomFormatterTypeName != null)
             {
-                return $"this.__{this.Name}CustomFormatter__.Deserialize(ref reader, options)";
+                return $"({this.Type})this.__{this.Name}CustomFormatter__.ConvertFrom(StringUtil.MakeString(value))";
             }
-            else if (this.primitiveTypes.Contains(this.Type))
+            else if (this.primitiveIntegerTypes.Contains(this.Type))
             {
-                return $"reader.Read{this.ShortTypeName.Replace("[]", "s")}()";
+                return $"({this.Type})Strtol.strtol(value.Array, value.Offset, value.Count, 10)";
+            }
+            else if (this.Type == "bool")
+            {
+                return "StringUtil.ParseBool(value)";
+            }
+            else if (this.Type == "string")
+            {
+                return "StringUtil.MakeString(value)";
+            }
+            else if (this.Type == "float")
+            {
+                return "Foundation.Serialization.Csv.Utf8Json.Internal.DoubleConversion.StringToDoubleConverter.ToSingle(value.Array, value.Offset, out _)";
+            }
+            else if (this.Type == "double")
+            {
+                return "Foundation.Serialization.Csv.Utf8Json.Internal.DoubleConversion.StringToDoubleConverter.ToDouble(value.Array, value.Offset, out _)";
             }
             else
             {
-                return $"formatterResolver.GetFormatterWithVerify<{this.Type}>().Deserialize(ref reader, options)";
+                return "throw new NotSupportedException()";
             }
+
+            //if (CustomFormatterTypeName != null)
+            //{
+            //    return $"this.__{this.Name}CustomFormatter__.Deserialize(ref reader, options)";
+            //}
+            //else if (this.primitiveTypes.Contains(this.Type))
+            //{
+            //    return $"reader.Read{this.ShortTypeName.Replace("[]", "s")}()";
+            //}
+            //else
+            //{
+            //    return $"formatterResolver.GetFormatterWithVerify<{this.Type}>().Deserialize(ref reader, options)";
+            //}
         }
     }
 

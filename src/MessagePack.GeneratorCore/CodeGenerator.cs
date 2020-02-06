@@ -133,6 +133,19 @@ namespace MessagePackCompiler
                         await OutputToDirAsync(output, template.Namespace, x.Name + "Formatter", multioutSymbol, text, cancellationToken).ConfigureAwait(false);
                     }
 
+                    // FIXME: Test
+                    foreach (var x in objectInfo)
+                    {
+                        var template = new CsvSerializerTemplate()
+                        {
+                            Namespace = namespaceDot + "Serializers" + ((x.Namespace == null) ? string.Empty : "." + x.Namespace),
+                            ObjectSerializationInfos = new[] { x },
+                        };
+
+                        var text = template.TransformText();
+                        await OutputToDirAsync(output, template.Namespace, x.Name + "Serializer", multioutSymbol, text, cancellationToken).ConfigureAwait(false);
+                    }
+
                     foreach (var x in enumInfo)
                     {
                         var template = new EnumTemplate()

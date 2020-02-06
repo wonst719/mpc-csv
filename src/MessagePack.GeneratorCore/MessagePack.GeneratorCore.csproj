@@ -9,6 +9,14 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Include="Generator\CsvSerializerTemplate.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>CsvSerializerTemplate.tt</DependentUpon>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Microsoft.CodeAnalysis.Analyzers" Version="2.9.7">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -21,6 +29,11 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Compile Update="Generator\CsvSerializerTemplate.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>CsvSerializerTemplate.tt</DependentUpon>
+    </Compile>
     <Compile Update="Generator\EnumTemplate.cs">
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
@@ -44,6 +57,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Update="Generator\CsvSerializerTemplate.tt">
+      <Generator>TextTemplatingFilePreprocessor</Generator>
+      <LastGenOutput>CsvSerializerTemplate.cs</LastGenOutput>
+    </None>
     <None Update="Generator\EnumTemplate.tt">
       <LastGenOutput>EnumTemplate.cs</LastGenOutput>
       <Generator>TextTemplatingFilePreprocessor</Generator>
