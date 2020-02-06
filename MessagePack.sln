@@ -1,0 +1,41 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29108.181
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MessagePack.GeneratorCore", "src\MessagePack.GeneratorCore\MessagePack.GeneratorCore.csproj", "{9962132D-A271-4E68-ACC1-18FA93462552}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MessagePack.Generator", "src\MessagePack.Generator\MessagePack.Generator.csproj", "{32C91908-5CAD-4C95-B240-ACBBACAC9476}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Debug|NoVSIX = Debug|NoVSIX
+		Release|Any CPU = Release|Any CPU
+		Release|NoVSIX = Release|NoVSIX
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{9962132D-A271-4E68-ACC1-18FA93462552}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9962132D-A271-4E68-ACC1-18FA93462552}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9962132D-A271-4E68-ACC1-18FA93462552}.Debug|NoVSIX.ActiveCfg = Debug|Any CPU
+		{9962132D-A271-4E68-ACC1-18FA93462552}.Debug|NoVSIX.Build.0 = Debug|Any CPU
+		{9962132D-A271-4E68-ACC1-18FA93462552}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9962132D-A271-4E68-ACC1-18FA93462552}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9962132D-A271-4E68-ACC1-18FA93462552}.Release|NoVSIX.ActiveCfg = Release|Any CPU
+		{9962132D-A271-4E68-ACC1-18FA93462552}.Release|NoVSIX.Build.0 = Release|Any CPU
+		{32C91908-5CAD-4C95-B240-ACBBACAC9476}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{32C91908-5CAD-4C95-B240-ACBBACAC9476}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{32C91908-5CAD-4C95-B240-ACBBACAC9476}.Debug|NoVSIX.ActiveCfg = Debug|Any CPU
+		{32C91908-5CAD-4C95-B240-ACBBACAC9476}.Debug|NoVSIX.Build.0 = Debug|Any CPU
+		{32C91908-5CAD-4C95-B240-ACBBACAC9476}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{32C91908-5CAD-4C95-B240-ACBBACAC9476}.Release|Any CPU.Build.0 = Release|Any CPU
+		{32C91908-5CAD-4C95-B240-ACBBACAC9476}.Release|NoVSIX.ActiveCfg = Release|Any CPU
+		{32C91908-5CAD-4C95-B240-ACBBACAC9476}.Release|NoVSIX.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {B3911209-2DBF-47F8-98F6-BBC0EDFE63DE}
+	EndGlobalSection
+EndGlobal
