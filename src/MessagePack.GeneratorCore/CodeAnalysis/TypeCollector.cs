@@ -23,13 +23,18 @@ namespace MessagePackCompiler.CodeAnalysis
 #pragma warning disable SA1401 // Fields should be private
         internal readonly INamedTypeSymbol Task;
         internal readonly INamedTypeSymbol TaskOfT;
-        internal readonly INamedTypeSymbol MessagePackObjectAttribute;
+        //internal readonly INamedTypeSymbol MessagePackObjectAttribute;
+        //internal readonly INamedTypeSymbol SerializationConstructorAttribute;
+        //internal readonly INamedTypeSymbol KeyAttribute;
+        //internal readonly INamedTypeSymbol IgnoreAttribute;
+        //internal readonly INamedTypeSymbol IgnoreDataMemberAttribute;
+        //internal readonly INamedTypeSymbol IMessagePackSerializationCallbackReceiver;
+        //internal readonly INamedTypeSymbol MessagePackFormatterAttribute;
+
+        internal readonly INamedTypeSymbol CsvObjectAttribute;
+        internal readonly INamedTypeSymbol CsvIgnoreAttribute;
         internal readonly INamedTypeSymbol SerializationConstructorAttribute;
-        internal readonly INamedTypeSymbol KeyAttribute;
-        internal readonly INamedTypeSymbol IgnoreAttribute;
         internal readonly INamedTypeSymbol IgnoreDataMemberAttribute;
-        internal readonly INamedTypeSymbol IMessagePackSerializationCallbackReceiver;
-        internal readonly INamedTypeSymbol MessagePackFormatterAttribute;
 #pragma warning restore SA1401 // Fields should be private
 
         public ReferenceSymbols(Compilation compilation, Action<string> logger)
@@ -46,6 +51,7 @@ namespace MessagePackCompiler.CodeAnalysis
                 logger("failed to get metadata of System.Threading.Tasks.Task");
             }
 
+#if false
             MessagePackObjectAttribute = compilation.GetTypeByMetadataName("MessagePack.MessagePackObjectAttribute");
             if (MessagePackObjectAttribute == null)
             {
@@ -87,6 +93,30 @@ namespace MessagePackCompiler.CodeAnalysis
             {
                 throw new InvalidOperationException("failed to get metadata of MessagePack.MessagePackFormatterAttribute");
             }
+#endif
+            CsvObjectAttribute = compilation.GetTypeByMetadataName("Foundation.Serialization.Csv.CsvObjectAttribute");
+            if (CsvObjectAttribute == null)
+            {
+                throw new InvalidOperationException("failed to get metadata of Foundation.Serialization.Csv.CsvObjectAttribute");
+            }
+
+            CsvIgnoreAttribute = compilation.GetTypeByMetadataName("Foundation.Serialization.Csv.CsvIgnoreAttribute");
+            if (CsvIgnoreAttribute == null)
+            {
+                throw new InvalidOperationException("failed to get metadata of Foundation.Serialization.Csv.CsvIgnoreAttribute");
+            }
+
+            SerializationConstructorAttribute = compilation.GetTypeByMetadataName("Foundation.Serialization.Csv.SerializationConstructorAttribute");
+            if (SerializationConstructorAttribute == null)
+            {
+                throw new InvalidOperationException("failed to get metadata of Foundation.Serialization.Csv.SerializationConstructorAttribute");
+            }
+
+            IgnoreDataMemberAttribute = compilation.GetTypeByMetadataName("System.Runtime.Serialization.IgnoreDataMemberAttribute");
+            if (IgnoreDataMemberAttribute == null)
+            {
+                logger("failed to get metadata of System.Runtime.Serialization.IgnoreDataMemberAttribute");
+            }
         }
     }
 
@@ -127,7 +157,7 @@ namespace MessagePackCompiler.CodeAnalysis
             "System.DateTime",
             "System.DateTimeOffset",
 
-            "MessagePack.Nil",
+            //"MessagePack.Nil",
 
             // and arrays
             "short[]",
@@ -176,82 +206,6 @@ namespace MessagePackCompiler.CodeAnalysis
             "System.Reactive.Unit",
         });
 
-        private readonly Dictionary<string, string> knownGenericTypes = new Dictionary<string, string>
-        {
-#pragma warning disable SA1509 // Opening braces should not be preceded by blank line
-            { "System.Collections.Generic.List<>", "global::MessagePack.Formatters.ListFormatter<TREPLACE>" },
-            { "System.Collections.Generic.LinkedList<>", "global::MessagePack.Formatters.LinkedListFormatter<TREPLACE>" },
-            { "System.Collections.Generic.Queue<>", "global::MessagePack.Formatters.QueueFormatter<TREPLACE>" },
-            { "System.Collections.Generic.Stack<>", "global::MessagePack.Formatters.StackFormatter<TREPLACE>" },
-            { "System.Collections.Generic.HashSet<>", "global::MessagePack.Formatters.HashSetFormatter<TREPLACE>" },
-            { "System.Collections.ObjectModel.ReadOnlyCollection<>", "global::MessagePack.Formatters.ReadOnlyCollectionFormatter<TREPLACE>" },
-            { "System.Collections.Generic.IList<>", "global::MessagePack.Formatters.InterfaceListFormatter2<TREPLACE>" },
-            { "System.Collections.Generic.ICollection<>", "global::MessagePack.Formatters.InterfaceCollectionFormatter2<TREPLACE>" },
-            { "System.Collections.Generic.IEnumerable<>", "global::MessagePack.Formatters.InterfaceEnumerableFormatter<TREPLACE>" },
-            { "System.Collections.Generic.Dictionary<,>", "global::MessagePack.Formatters.DictionaryFormatter<TREPLACE>" },
-            { "System.Collections.Generic.IDictionary<,>", "global::MessagePack.Formatters.InterfaceDictionaryFormatter<TREPLACE>" },
-            { "System.Collections.Generic.SortedDictionary<,>", "global::MessagePack.Formatters.SortedDictionaryFormatter<TREPLACE>" },
-            { "System.Collections.Generic.SortedList<,>", "global::MessagePack.Formatters.SortedListFormatter<TREPLACE>" },
-            { "System.Linq.ILookup<,>", "global::MessagePack.Formatters.InterfaceLookupFormatter<TREPLACE>" },
-            { "System.Linq.IGrouping<,>", "global::MessagePack.Formatters.InterfaceGroupingFormatter<TREPLACE>" },
-            { "System.Collections.ObjectModel.ObservableCollection<>", "global::MessagePack.Formatters.ObservableCollectionFormatter<TREPLACE>" },
-            { "System.Collections.ObjectModel.ReadOnlyObservableCollection<>", "global::MessagePack.Formatters.ReadOnlyObservableCollectionFormatter<TREPLACE>" },
-            { "System.Collections.Generic.IReadOnlyList<>", "global::MessagePack.Formatters.InterfaceReadOnlyListFormatter<TREPLACE>" },
-            { "System.Collections.Generic.IReadOnlyCollection<>", "global::MessagePack.Formatters.InterfaceReadOnlyCollectionFormatter<TREPLACE>" },
-            { "System.Collections.Generic.ISet<>", "global::MessagePack.Formatters.InterfaceSetFormatter<TREPLACE>" },
-            { "System.Collections.Concurrent.ConcurrentBag<>", "global::MessagePack.Formatters.ConcurrentBagFormatter<TREPLACE>" },
-            { "System.Collections.Concurrent.ConcurrentQueue<>", "global::MessagePack.Formatters.ConcurrentQueueFormatter<TREPLACE>" },
-            { "System.Collections.Concurrent.ConcurrentStack<>", "global::MessagePack.Formatters.ConcurrentStackFormatter<TREPLACE>" },
-            { "System.Collections.ObjectModel.ReadOnlyDictionary<,>", "global::MessagePack.Formatters.ReadOnlyDictionaryFormatter<TREPLACE>" },
-            { "System.Collections.Generic.IReadOnlyDictionary<,>", "global::MessagePack.Formatters.InterfaceReadOnlyDictionaryFormatter<TREPLACE>" },
-            { "System.Collections.Concurrent.ConcurrentDictionary<,>", "global::MessagePack.Formatters.ConcurrentDictionaryFormatter<TREPLACE>" },
-            { "System.Lazy<>", "global::MessagePack.Formatters.LazyFormatter<TREPLACE>" },
-            { "System.Threading.Tasks<>", "global::MessagePack.Formatters.TaskValueFormatter<TREPLACE>" },
-
-            { "System.Tuple<>", "global::MessagePack.Formatters.TupleFormatter<TREPLACE>" },
-            { "System.Tuple<,>", "global::MessagePack.Formatters.TupleFormatter<TREPLACE>" },
-            { "System.Tuple<,,>", "global::MessagePack.Formatters.TupleFormatter<TREPLACE>" },
-            { "System.Tuple<,,,>", "global::MessagePack.Formatters.TupleFormatter<TREPLACE>" },
-            { "System.Tuple<,,,,>", "global::MessagePack.Formatters.TupleFormatter<TREPLACE>" },
-            { "System.Tuple<,,,,,>", "global::MessagePack.Formatters.TupleFormatter<TREPLACE>" },
-            { "System.Tuple<,,,,,,>", "global::MessagePack.Formatters.TupleFormatter<TREPLACE>" },
-            { "System.Tuple<,,,,,,,>", "global::MessagePack.Formatters.TupleFormatter<TREPLACE>" },
-
-            { "System.ValueTuple<>", "global::MessagePack.Formatters.ValueTupleFormatter<TREPLACE>" },
-            { "System.ValueTuple<,>", "global::MessagePack.Formatters.ValueTupleFormatter<TREPLACE>" },
-            { "System.ValueTuple<,,>", "global::MessagePack.Formatters.ValueTupleFormatter<TREPLACE>" },
-            { "System.ValueTuple<,,,>", "global::MessagePack.Formatters.ValueTupleFormatter<TREPLACE>" },
-            { "System.ValueTuple<,,,,>", "global::MessagePack.Formatters.ValueTupleFormatter<TREPLACE>" },
-            { "System.ValueTuple<,,,,,>", "global::MessagePack.Formatters.ValueTupleFormatter<TREPLACE>" },
-            { "System.ValueTuple<,,,,,,>", "global::MessagePack.Formatters.ValueTupleFormatter<TREPLACE>" },
-            { "System.ValueTuple<,,,,,,,>", "global::MessagePack.Formatters.ValueTupleFormatter<TREPLACE>" },
-
-            { "System.Collections.Generic.KeyValuePair<,>", "global::MessagePack.Formatters.KeyValuePairFormatter<TREPLACE>" },
-            { "System.Threading.Tasks.ValueTask<>", "global::MessagePack.Formatters.KeyValuePairFormatter<TREPLACE>" },
-            { "System.ArraySegment<>", "global::MessagePack.Formatters.ArraySegmentFormatter<TREPLACE>" },
-
-            // extensions
-            { "System.Collections.Immutable.ImmutableArray<>", "global::MessagePack.ImmutableCollection.ImmutableArrayFormatter<TREPLACE>" },
-            { "System.Collections.Immutable.ImmutableList<>", "global::MessagePack.ImmutableCollection.ImmutableListFormatter<TREPLACE>" },
-            { "System.Collections.Immutable.ImmutableDictionary<,>", "global::MessagePack.ImmutableCollection.ImmutableDictionaryFormatter<TREPLACE>" },
-            { "System.Collections.Immutable.ImmutableHashSet<>", "global::MessagePack.ImmutableCollection.ImmutableHashSetFormatter<TREPLACE>" },
-            { "System.Collections.Immutable.ImmutableSortedDictionary<,>", "global::MessagePack.ImmutableCollection.ImmutableSortedDictionaryFormatter<TREPLACE>" },
-            { "System.Collections.Immutable.ImmutableSortedSet<>", "global::MessagePack.ImmutableCollection.ImmutableSortedSetFormatter<TREPLACE>" },
-            { "System.Collections.Immutable.ImmutableQueue<>", "global::MessagePack.ImmutableCollection.ImmutableQueueFormatter<TREPLACE>" },
-            { "System.Collections.Immutable.ImmutableStack<>", "global::MessagePack.ImmutableCollection.ImmutableStackFormatter<TREPLACE>" },
-            { "System.Collections.Immutable.IImmutableList<>", "global::MessagePack.ImmutableCollection.InterfaceImmutableListFormatter<TREPLACE>" },
-            { "System.Collections.Immutable.IImmutableDictionary<,>", "global::MessagePack.ImmutableCollection.InterfaceImmutableDictionaryFormatter<TREPLACE>" },
-            { "System.Collections.Immutable.IImmutableQueue<>", "global::MessagePack.ImmutableCollection.InterfaceImmutableQueueFormatter<TREPLACE>" },
-            { "System.Collections.Immutable.IImmutableSet<>", "global::MessagePack.ImmutableCollection.InterfaceImmutableSetFormatter<TREPLACE>" },
-            { "System.Collections.Immutable.IImmutableStack<>", "global::MessagePack.ImmutableCollection.InterfaceImmutableStackFormatter<TREPLACE>" },
-
-            { "Reactive.Bindings.ReactiveProperty<>", "global::MessagePack.ReactivePropertyExtension.ReactivePropertyFormatter<TREPLACE>" },
-            { "Reactive.Bindings.IReactiveProperty<>", "global::MessagePack.ReactivePropertyExtension.InterfaceReactivePropertyFormatter<TREPLACE>" },
-            { "Reactive.Bindings.IReadOnlyReactiveProperty<>", "global::MessagePack.ReactivePropertyExtension.InterfaceReadOnlyReactivePropertyFormatter<TREPLACE>" },
-            { "Reactive.Bindings.ReactiveCollection<>", "global::MessagePack.ReactivePropertyExtension.ReactiveCollectionFormatter<TREPLACE>" },
-#pragma warning restore SA1509 // Opening braces should not be preceded by blank line
-        };
-
         private readonly Action<string> logger;
 
         private readonly bool disallowInternal;
@@ -285,8 +239,8 @@ namespace MessagePackCompiler.CodeAnalysis
                     return false;
                 })
                 .Where(x =>
-                    ((x.TypeKind == TypeKind.Class) && x.GetAttributes().Any(x2 => x2.AttributeClass.ApproximatelyEqual(typeReferences.MessagePackObjectAttribute)))
-                    || ((x.TypeKind == TypeKind.Struct) && x.GetAttributes().Any(x2 => x2.AttributeClass.ApproximatelyEqual(typeReferences.MessagePackObjectAttribute))))
+                    ((x.TypeKind == TypeKind.Class) && x.GetAttributes().Any(x2 => x2.AttributeClass.ApproximatelyEqual(typeReferences.CsvObjectAttribute)))
+                    || ((x.TypeKind == TypeKind.Struct) && x.GetAttributes().Any(x2 => x2.AttributeClass.ApproximatelyEqual(typeReferences.CsvObjectAttribute))))
                 .ToArray();
         }
 
@@ -344,18 +298,6 @@ namespace MessagePackCompiler.CodeAnalysis
             if (typeSymbol.TypeKind == TypeKind.Enum)
             {
                 this.CollectEnum(type);
-                return;
-            }
-
-            if (type.IsGenericType)
-            {
-                this.CollectGeneric(type);
-                return;
-            }
-
-            if (type.TupleUnderlyingType != null)
-            {
-                CollectGeneric(type.TupleUnderlyingType);
                 return;
             }
 
@@ -417,340 +359,88 @@ namespace MessagePackCompiler.CodeAnalysis
             return;
         }
 
-        private void CollectGeneric(INamedTypeSymbol type)
-        {
-            INamedTypeSymbol genericType = type.ConstructUnboundGenericType();
-            var genericTypeString = genericType.ToDisplayString();
-            var fullName = type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
-
-            // special case
-            if (fullName == "global::System.ArraySegment<byte>" || fullName == "global::System.ArraySegment<byte>?")
-            {
-                return;
-            }
-
-            // nullable
-            if (genericTypeString == "T?")
-            {
-                this.CollectCore(type.TypeArguments[0]);
-
-                if (!this.embeddedTypes.Contains(type.TypeArguments[0].ToString()))
-                {
-                    var info = new GenericSerializationInfo
-                    {
-                        FormatterName = $"global::MessagePack.Formatters.NullableFormatter<{type.TypeArguments[0].ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat)}>",
-                        FullName = type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat),
-                    };
-
-                    this.collectedGenericInfo.Add(info);
-                }
-
-                return;
-            }
-
-            // collection
-            if (this.knownGenericTypes.TryGetValue(genericTypeString, out var formatter))
-            {
-                foreach (ITypeSymbol item in type.TypeArguments)
-                {
-                    this.CollectCore(item);
-                }
-
-                var typeArgs = string.Join(", ", type.TypeArguments.Select(x => x.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat)));
-                var f = formatter.Replace("TREPLACE", typeArgs);
-
-                var info = new GenericSerializationInfo
-                {
-                    FormatterName = f,
-                    FullName = type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat),
-                };
-
-                this.collectedGenericInfo.Add(info);
-
-                if (genericTypeString == "System.Linq.ILookup<,>")
-                {
-                    formatter = this.knownGenericTypes["System.Linq.IGrouping<,>"];
-                    f = formatter.Replace("TREPLACE", typeArgs);
-
-                    var groupingInfo = new GenericSerializationInfo
-                    {
-                        FormatterName = f,
-                        FullName = $"global::System.Linq.IGrouping<{typeArgs}>",
-                    };
-
-                    this.collectedGenericInfo.Add(groupingInfo);
-
-                    formatter = this.knownGenericTypes["System.Collections.Generic.IEnumerable<>"];
-                    typeArgs = type.TypeArguments[1].ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
-                    f = formatter.Replace("TREPLACE", typeArgs);
-
-                    var enumerableInfo = new GenericSerializationInfo
-                    {
-                        FormatterName = f,
-                        FullName = $"global::System.Collections.Generic.IEnumerable<{typeArgs}>",
-                    };
-
-                    this.collectedGenericInfo.Add(enumerableInfo);
-                }
-            }
-        }
-
         private void CollectObject(INamedTypeSymbol type)
         {
             var isClass = !type.IsValueType;
 
-            AttributeData contractAttr = type.GetAttributes().FirstOrDefault(x => x.AttributeClass.ApproximatelyEqual(this.typeReferences.MessagePackObjectAttribute));
+            AttributeData contractAttr = type.GetAttributes().FirstOrDefault(x => x.AttributeClass.ApproximatelyEqual(this.typeReferences.CsvObjectAttribute));
             if (contractAttr == null)
             {
                 throw new MessagePackGeneratorResolveFailedException("Serialization Object must mark MessagePackObjectAttribute." + " type: " + type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat));
             }
 
-            var isIntKey = true;
             var intMembers = new Dictionary<int, MemberSerializationInfo>();
             var stringMembers = new Dictionary<string, MemberSerializationInfo>();
 
-            if (this.isForceUseMap || (bool)contractAttr.ConstructorArguments[0].Value)
+            // All public members are serialize target except [Ignore] member.
+            var hiddenIntKey = 0;
+
+            foreach (IPropertySymbol item in type.GetAllMembers().OfType<IPropertySymbol>().Where(x => !x.IsOverride))
             {
-                // All public members are serialize target except [Ignore] member.
-                isIntKey = false;
-
-                var hiddenIntKey = 0;
-
-                foreach (IPropertySymbol item in type.GetAllMembers().OfType<IPropertySymbol>().Where(x => !x.IsOverride))
+                if (item.GetAttributes().Any(x => x.AttributeClass.ApproximatelyEqual(this.typeReferences.CsvIgnoreAttribute) || x.AttributeClass.Name == this.typeReferences.IgnoreDataMemberAttribute.Name))
                 {
-                    if (item.GetAttributes().Any(x => x.AttributeClass.ApproximatelyEqual(this.typeReferences.IgnoreAttribute) || x.AttributeClass.Name == this.typeReferences.IgnoreDataMemberAttribute.Name))
-                    {
-                        continue;
-                    }
-
-                    var customFormatterAttr = item.GetAttributes().FirstOrDefault(x => x.AttributeClass.ApproximatelyEqual(this.typeReferences.MessagePackFormatterAttribute))?.ConstructorArguments[0].Value as INamedTypeSymbol;
-
-                    var member = new MemberSerializationInfo
-                    {
-                        IsReadable = (item.GetMethod != null) && item.GetMethod.DeclaredAccessibility == Accessibility.Public && !item.IsStatic,
-                        IsWritable = (item.SetMethod != null) && item.SetMethod.DeclaredAccessibility == Accessibility.Public && !item.IsStatic,
-                        StringKey = item.Name,
-                        IsProperty = true,
-                        IsField = false,
-                        Name = item.Name,
-                        Type = item.Type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat),
-                        ShortTypeName = item.Type.ToDisplayString(BinaryWriteFormat),
-                        CustomFormatterTypeName = customFormatterAttr?.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat),
-                    };
-                    if (!member.IsReadable && !member.IsWritable)
-                    {
-                        continue;
-                    }
-
-                    member.IntKey = hiddenIntKey++;
-                    stringMembers.Add(member.StringKey, member);
-
-                    this.CollectCore(item.Type); // recursive collect
+                    continue;
                 }
 
-                foreach (IFieldSymbol item in type.GetAllMembers().OfType<IFieldSymbol>())
+                //var customFormatterAttr = item.GetAttributes().FirstOrDefault(x => x.AttributeClass.ApproximatelyEqual(this.typeReferences.MessagePackFormatterAttribute))?.ConstructorArguments[0].Value as INamedTypeSymbol;
+
+                var member = new MemberSerializationInfo
                 {
-                    if (item.GetAttributes().Any(x => x.AttributeClass.ApproximatelyEqual(this.typeReferences.IgnoreAttribute) || x.AttributeClass.Name == this.typeReferences.IgnoreDataMemberAttribute.Name))
-                    {
-                        continue;
-                    }
-
-                    if (item.IsImplicitlyDeclared)
-                    {
-                        continue;
-                    }
-
-                    var customFormatterAttr = item.GetAttributes().FirstOrDefault(x => x.AttributeClass.ApproximatelyEqual(this.typeReferences.MessagePackFormatterAttribute))?.ConstructorArguments[0].Value as INamedTypeSymbol;
-
-                    var member = new MemberSerializationInfo
-                    {
-                        IsReadable = item.DeclaredAccessibility == Accessibility.Public && !item.IsStatic,
-                        IsWritable = item.DeclaredAccessibility == Accessibility.Public && !item.IsReadOnly && !item.IsStatic,
-                        StringKey = item.Name,
-                        IsProperty = false,
-                        IsField = true,
-                        Name = item.Name,
-                        Type = item.Type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat),
-                        ShortTypeName = item.Type.ToDisplayString(BinaryWriteFormat),
-                        CustomFormatterTypeName = customFormatterAttr?.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat),
-                    };
-                    if (!member.IsReadable && !member.IsWritable)
-                    {
-                        continue;
-                    }
-
-                    member.IntKey = hiddenIntKey++;
-                    stringMembers.Add(member.StringKey, member);
-                    this.CollectCore(item.Type); // recursive collect
+                    IsReadable = (item.GetMethod != null) && item.GetMethod.DeclaredAccessibility == Accessibility.Public && !item.IsStatic,
+                    IsWritable = (item.SetMethod != null) && item.SetMethod.DeclaredAccessibility == Accessibility.Public && !item.IsStatic,
+                    StringKey = item.Name,
+                    IsProperty = true,
+                    IsField = false,
+                    Name = item.Name,
+                    Type = item.Type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat),
+                    ShortTypeName = item.Type.ToDisplayString(BinaryWriteFormat),
+                    //CustomFormatterTypeName = customFormatterAttr?.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat),
+                };
+                if (!member.IsReadable && !member.IsWritable)
+                {
+                    continue;
                 }
+
+                member.IntKey = hiddenIntKey++;
+                stringMembers.Add(member.StringKey, member);
+
+                this.CollectCore(item.Type); // recursive collect
             }
-            else
+
+            foreach (IFieldSymbol item in type.GetAllMembers().OfType<IFieldSymbol>())
             {
-                // Only KeyAttribute members
-                var searchFirst = true;
-                var hiddenIntKey = 0;
-
-                foreach (IPropertySymbol item in type.GetAllMembers().OfType<IPropertySymbol>())
+                if (item.GetAttributes().Any(x => x.AttributeClass.ApproximatelyEqual(this.typeReferences.CsvIgnoreAttribute) || x.AttributeClass.Name == this.typeReferences.IgnoreDataMemberAttribute.Name))
                 {
-                    if (item.IsIndexer)
-                    {
-                        continue; // .tt files don't generate good code for this yet: https://github.com/neuecc/MessagePack-CSharp/issues/390
-                    }
-
-                    if (item.GetAttributes().Any(x => x.AttributeClass.ApproximatelyEqual(this.typeReferences.IgnoreAttribute) || x.AttributeClass.ApproximatelyEqual(this.typeReferences.IgnoreDataMemberAttribute)))
-                    {
-                        continue;
-                    }
-
-                    var customFormatterAttr = item.GetAttributes().FirstOrDefault(x => x.AttributeClass.ApproximatelyEqual(this.typeReferences.MessagePackFormatterAttribute))?.ConstructorArguments[0].Value as INamedTypeSymbol;
-
-                    var member = new MemberSerializationInfo
-                    {
-                        IsReadable = (item.GetMethod != null) && item.GetMethod.DeclaredAccessibility == Accessibility.Public && !item.IsStatic,
-                        IsWritable = (item.SetMethod != null) && item.SetMethod.DeclaredAccessibility == Accessibility.Public && !item.IsStatic,
-                        IsProperty = true,
-                        IsField = false,
-                        Name = item.Name,
-                        Type = item.Type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat),
-                        ShortTypeName = item.Type.ToDisplayString(BinaryWriteFormat),
-                        CustomFormatterTypeName = customFormatterAttr?.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat),
-                    };
-                    if (!member.IsReadable && !member.IsWritable)
-                    {
-                        continue;
-                    }
-
-                    TypedConstant? key = item.GetAttributes().FirstOrDefault(x => x.AttributeClass.ApproximatelyEqual(this.typeReferences.KeyAttribute))?.ConstructorArguments[0];
-                    if (key == null)
-                    {
-                        throw new MessagePackGeneratorResolveFailedException("all public members must mark KeyAttribute or IgnoreMemberAttribute." + " type: " + type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat) + " member:" + item.Name);
-                    }
-
-                    var intKey = (key.Value.Value is int) ? (int)key.Value.Value : (int?)null;
-                    var stringKey = (key.Value.Value is string) ? (string)key.Value.Value : (string)null;
-                    if (intKey == null && stringKey == null)
-                    {
-                        throw new MessagePackGeneratorResolveFailedException("both IntKey and StringKey are null." + " type: " + type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat) + " member:" + item.Name);
-                    }
-
-                    if (searchFirst)
-                    {
-                        searchFirst = false;
-                        isIntKey = intKey != null;
-                    }
-                    else
-                    {
-                        if ((isIntKey && intKey == null) || (!isIntKey && stringKey == null))
-                        {
-                            throw new MessagePackGeneratorResolveFailedException("all members key type must be same." + " type: " + type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat) + " member:" + item.Name);
-                        }
-                    }
-
-                    if (isIntKey)
-                    {
-                        member.IntKey = (int)intKey;
-                        if (intMembers.ContainsKey(member.IntKey))
-                        {
-                            throw new MessagePackGeneratorResolveFailedException("key is duplicated, all members key must be unique." + " type: " + type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat) + " member:" + item.Name);
-                        }
-
-                        intMembers.Add(member.IntKey, member);
-                    }
-                    else
-                    {
-                        member.StringKey = (string)stringKey;
-                        if (stringMembers.ContainsKey(member.StringKey))
-                        {
-                            throw new MessagePackGeneratorResolveFailedException("key is duplicated, all members key must be unique." + " type: " + type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat) + " member:" + item.Name);
-                        }
-
-                        member.IntKey = hiddenIntKey++;
-                        stringMembers.Add(member.StringKey, member);
-                    }
-
-                    this.CollectCore(item.Type); // recursive collect
+                    continue;
                 }
 
-                foreach (IFieldSymbol item in type.GetAllMembers().OfType<IFieldSymbol>())
+                if (item.IsImplicitlyDeclared)
                 {
-                    if (item.IsImplicitlyDeclared)
-                    {
-                        continue;
-                    }
-
-                    if (item.GetAttributes().Any(x => x.AttributeClass.ApproximatelyEqual(this.typeReferences.IgnoreAttribute)))
-                    {
-                        continue;
-                    }
-
-                    var customFormatterAttr = item.GetAttributes().FirstOrDefault(x => x.AttributeClass.ApproximatelyEqual(this.typeReferences.MessagePackFormatterAttribute))?.ConstructorArguments[0].Value as INamedTypeSymbol;
-
-                    var member = new MemberSerializationInfo
-                    {
-                        IsReadable = item.DeclaredAccessibility == Accessibility.Public && !item.IsStatic,
-                        IsWritable = item.DeclaredAccessibility == Accessibility.Public && !item.IsReadOnly && !item.IsStatic,
-                        IsProperty = true,
-                        IsField = false,
-                        Name = item.Name,
-                        Type = item.Type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat),
-                        ShortTypeName = item.Type.ToDisplayString(BinaryWriteFormat),
-                        CustomFormatterTypeName = customFormatterAttr?.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat),
-                    };
-                    if (!member.IsReadable && !member.IsWritable)
-                    {
-                        continue;
-                    }
-
-                    TypedConstant? key = item.GetAttributes().FirstOrDefault(x => x.AttributeClass.ApproximatelyEqual(this.typeReferences.KeyAttribute))?.ConstructorArguments[0];
-                    if (key == null)
-                    {
-                        throw new MessagePackGeneratorResolveFailedException("all public members must mark KeyAttribute or IgnoreMemberAttribute." + " type: " + type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat) + " member:" + item.Name);
-                    }
-
-                    var intKey = (key.Value.Value is int) ? (int)key.Value.Value : (int?)null;
-                    var stringKey = (key.Value.Value is string) ? (string)key.Value.Value : (string)null;
-                    if (intKey == null && stringKey == null)
-                    {
-                        throw new MessagePackGeneratorResolveFailedException("both IntKey and StringKey are null." + " type: " + type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat) + " member:" + item.Name);
-                    }
-
-                    if (searchFirst)
-                    {
-                        searchFirst = false;
-                        isIntKey = intKey != null;
-                    }
-                    else
-                    {
-                        if ((isIntKey && intKey == null) || (!isIntKey && stringKey == null))
-                        {
-                            throw new MessagePackGeneratorResolveFailedException("all members key type must be same." + " type: " + type.Name + " member:" + item.Name);
-                        }
-                    }
-
-                    if (isIntKey)
-                    {
-                        member.IntKey = (int)intKey;
-                        if (intMembers.ContainsKey(member.IntKey))
-                        {
-                            throw new MessagePackGeneratorResolveFailedException("key is duplicated, all members key must be unique." + " type: " + type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat) + " member:" + item.Name);
-                        }
-
-                        intMembers.Add(member.IntKey, member);
-                    }
-                    else
-                    {
-                        member.StringKey = (string)stringKey;
-                        if (stringMembers.ContainsKey(member.StringKey))
-                        {
-                            throw new MessagePackGeneratorResolveFailedException("key is duplicated, all members key must be unique." + " type: " + type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat) + " member:" + item.Name);
-                        }
-
-                        member.IntKey = hiddenIntKey++;
-                        stringMembers.Add(member.StringKey, member);
-                    }
-
-                    this.CollectCore(item.Type); // recursive collect
+                    continue;
                 }
+
+                //var customFormatterAttr = item.GetAttributes().FirstOrDefault(x => x.AttributeClass.ApproximatelyEqual(this.typeReferences.MessagePackFormatterAttribute))?.ConstructorArguments[0].Value as INamedTypeSymbol;
+
+                var member = new MemberSerializationInfo
+                {
+                    IsReadable = item.DeclaredAccessibility == Accessibility.Public && !item.IsStatic,
+                    IsWritable = item.DeclaredAccessibility == Accessibility.Public && !item.IsReadOnly && !item.IsStatic,
+                    StringKey = item.Name,
+                    IsProperty = false,
+                    IsField = true,
+                    Name = item.Name,
+                    Type = item.Type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat),
+                    ShortTypeName = item.Type.ToDisplayString(BinaryWriteFormat),
+                    //CustomFormatterTypeName = customFormatterAttr?.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat),
+                };
+                if (!member.IsReadable && !member.IsWritable)
+                {
+                    continue;
+                }
+
+                member.IntKey = hiddenIntKey++;
+                stringMembers.Add(member.StringKey, member);
+                this.CollectCore(item.Type); // recursive collect
             }
 
             // GetConstructor
@@ -783,26 +473,28 @@ namespace MessagePackCompiler.CodeAnalysis
                     foreach (IParameterSymbol item in ctor.Parameters)
                     {
                         MemberSerializationInfo paramMember;
-                        if (isIntKey)
+
+                        IEnumerable<KeyValuePair<string, MemberSerializationInfo>> hasKey = constructorLookupDictionary[item.Name];
+                        var len = hasKey.Count();
+                        if (len != 0)
                         {
-                            if (intMembers.TryGetValue(ctorParamIndex, out paramMember))
+                            if (len != 1)
                             {
-                                if (item.Type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat) == paramMember.Type && paramMember.IsReadable)
+                                if (ctorEnumerator != null)
                                 {
-                                    constructorParameters.Add(paramMember);
+                                    ctor = null;
+                                    continue;
                                 }
                                 else
                                 {
-                                    if (ctorEnumerator != null)
-                                    {
-                                        ctor = null;
-                                        continue;
-                                    }
-                                    else
-                                    {
-                                        throw new MessagePackGeneratorResolveFailedException("can't find matched constructor parameter, parameterType mismatch. type:" + type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat) + " parameterIndex:" + ctorParamIndex + " paramterType:" + item.Type.Name);
-                                    }
+                                    throw new MessagePackGeneratorResolveFailedException("duplicate matched constructor parameter name:" + type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat) + " parameterName:" + item.Name + " paramterType:" + item.Type.Name);
                                 }
+                            }
+
+                            paramMember = hasKey.First().Value;
+                            if (item.Type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat) == paramMember.Type && paramMember.IsReadable)
+                            {
+                                constructorParameters.Add(paramMember);
                             }
                             else
                             {
@@ -813,58 +505,20 @@ namespace MessagePackCompiler.CodeAnalysis
                                 }
                                 else
                                 {
-                                    throw new MessagePackGeneratorResolveFailedException("can't find matched constructor parameter, index not found. type:" + type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat) + " parameterIndex:" + ctorParamIndex);
+                                    throw new MessagePackGeneratorResolveFailedException("can't find matched constructor parameter, parameterType mismatch. type:" + type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat) + " parameterName:" + item.Name + " paramterType:" + item.Type.Name);
                                 }
                             }
                         }
                         else
                         {
-                            IEnumerable<KeyValuePair<string, MemberSerializationInfo>> hasKey = constructorLookupDictionary[item.Name];
-                            var len = hasKey.Count();
-                            if (len != 0)
+                            if (ctorEnumerator != null)
                             {
-                                if (len != 1)
-                                {
-                                    if (ctorEnumerator != null)
-                                    {
-                                        ctor = null;
-                                        continue;
-                                    }
-                                    else
-                                    {
-                                        throw new MessagePackGeneratorResolveFailedException("duplicate matched constructor parameter name:" + type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat) + " parameterName:" + item.Name + " paramterType:" + item.Type.Name);
-                                    }
-                                }
-
-                                paramMember = hasKey.First().Value;
-                                if (item.Type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat) == paramMember.Type && paramMember.IsReadable)
-                                {
-                                    constructorParameters.Add(paramMember);
-                                }
-                                else
-                                {
-                                    if (ctorEnumerator != null)
-                                    {
-                                        ctor = null;
-                                        continue;
-                                    }
-                                    else
-                                    {
-                                        throw new MessagePackGeneratorResolveFailedException("can't find matched constructor parameter, parameterType mismatch. type:" + type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat) + " parameterName:" + item.Name + " paramterType:" + item.Type.Name);
-                                    }
-                                }
+                                ctor = null;
+                                continue;
                             }
                             else
                             {
-                                if (ctorEnumerator != null)
-                                {
-                                    ctor = null;
-                                    continue;
-                                }
-                                else
-                                {
-                                    throw new MessagePackGeneratorResolveFailedException("can't find matched constructor parameter, index not found. type:" + type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat) + " parameterName:" + item.Name);
-                                }
+                                throw new MessagePackGeneratorResolveFailedException("can't find matched constructor parameter, index not found. type:" + type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat) + " parameterName:" + item.Name);
                             }
                         }
 
@@ -879,14 +533,14 @@ namespace MessagePackCompiler.CodeAnalysis
                 }
             }
 
-            var hasSerializationConstructor = type.AllInterfaces.Any(x => x.ApproximatelyEqual(this.typeReferences.IMessagePackSerializationCallbackReceiver));
-            var needsCastOnBefore = true;
-            var needsCastOnAfter = true;
-            if (hasSerializationConstructor)
-            {
-                needsCastOnBefore = !type.GetMembers("OnBeforeSerialize").Any();
-                needsCastOnAfter = !type.GetMembers("OnAfterDeserialize").Any();
-            }
+            //var hasIMessagePackSerializationCallbackReceiver = type.AllInterfaces.Any(x => x.ApproximatelyEqual(this.typeReferences.IMessagePackSerializationCallbackReceiver));
+            //var needsCastOnBefore = true;
+            //var needsCastOnAfter = true;
+            //if (hasIMessagePackSerializationCallbackReceiver)
+            //{
+            //    needsCastOnBefore = !type.GetMembers("OnBeforeSerialize").Any();
+            //    needsCastOnAfter = !type.GetMembers("OnAfterDeserialize").Any();
+            //}
 
             var info = new ObjectSerializationInfo
             {
@@ -896,9 +550,9 @@ namespace MessagePackCompiler.CodeAnalysis
                 Name = type.ToDisplayString(ShortTypeNameFormat).Replace(".", "_"),
                 FullName = type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat),
                 Namespace = type.ContainingNamespace.IsGlobalNamespace ? null : type.ContainingNamespace.ToDisplayString(),
-                HasIMessagePackSerializationCallbackReceiver = hasSerializationConstructor,
-                NeedsCastOnAfter = needsCastOnAfter,
-                NeedsCastOnBefore = needsCastOnBefore,
+                //HasIMessagePackSerializationCallbackReceiver = hasIMessagePackSerializationCallbackReceiver,
+                //NeedsCastOnAfter = needsCastOnAfter,
+                //NeedsCastOnBefore = needsCastOnBefore,
             };
             this.collectedObjectInfo.Add(info);
         }

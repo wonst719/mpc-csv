@@ -8,7 +8,7 @@ using Microsoft.CodeAnalysis.CSharp;
 
 namespace MessagePackCompiler
 {
-    public class MessagePackCompilation
+    public class CsvCompilation
     {
         public static Task<CSharpCompilation> CreateFromProjectAsync(string[] csprojs, string[] preprocessorSymbols, CancellationToken cancellationToken)
         {
@@ -23,10 +23,10 @@ namespace MessagePackCompiler
         private const string DummyAnnotation = @"
 using System;
 
-namespace MessagePack
+namespace Foundation.Serialization.Csv
 {
     [AttributeUsage(AttributeTargets.Class | AttributeTargets.Struct, AllowMultiple = false, Inherited = true)]
-    public class MessagePackObjectAttribute : Attribute
+    public class CsvObjectAttribute : Attribute
     {
         public bool KeyAsPropertyName { get; private set; }
 
@@ -37,38 +37,8 @@ namespace MessagePack
     }
 
     [AttributeUsage(AttributeTargets.Property | AttributeTargets.Field, AllowMultiple = false, Inherited = true)]
-    public class KeyAttribute : Attribute
+    public class CsvIgnoreAttribute : Attribute
     {
-        public int? IntKey { get; private set; }
-        public string StringKey { get; private set; }
-
-        public KeyAttribute(int x)
-        {
-            this.IntKey = x;
-        }
-
-        public KeyAttribute(string x)
-        {
-            this.StringKey = x;
-        }
-    }
-
-    [AttributeUsage(AttributeTargets.Property | AttributeTargets.Field, AllowMultiple = false, Inherited = true)]
-    public class IgnoreMemberAttribute : Attribute
-    {
-    }
-
-    [AttributeUsage(AttributeTargets.Interface | AttributeTargets.Class, AllowMultiple = true, Inherited = false)]
-    public class UnionAttribute : Attribute
-    {
-        public int Key { get; private set; }
-        public Type SubType { get; private set; }
-
-        public UnionAttribute(int key, Type subType)
-        {
-            this.Key = key;
-            this.SubType = subType;
-        }
     }
 
     [AttributeUsage(AttributeTargets.Constructor, AllowMultiple = false, Inherited = true)]
@@ -76,6 +46,7 @@ namespace MessagePack
     {
     }
 
+    // dummy
     [AttributeUsage(AttributeTargets.Class | AttributeTargets.Struct | AttributeTargets.Interface | AttributeTargets.Enum | AttributeTargets.Field | AttributeTargets.Property, AllowMultiple = false, Inherited = true)]
     public class MessagePackFormatterAttribute : Attribute
     {
@@ -95,18 +66,6 @@ namespace MessagePack
     }
 }
 
-using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace MessagePack
-{
-    public interface IMessagePackSerializationCallbackReceiver
-    {
-        void OnBeforeSerialize();
-        void OnAfterDeserialize();
-    }
-}
 ";
     }
 }

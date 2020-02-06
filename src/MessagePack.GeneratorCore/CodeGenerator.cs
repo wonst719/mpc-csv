@@ -46,8 +46,8 @@ namespace MessagePackCompiler
                 logger("Project Compilation Start:" + input);
 
                 var compilation = (Path.GetExtension(input) == ".csproj")
-                    ? await MessagePackCompilation.CreateFromProjectAsync(input.Split(','), conditionalSymbols.Concat(new[] { multioutSymbol }).ToArray(), cancellationToken)
-.ConfigureAwait(false) : await MessagePackCompilation.CreateFromDirectoryAsync(input, conditionalSymbols.Concat(new[] { multioutSymbol }).ToArray(), cancellationToken).ConfigureAwait(false);
+                    ? await CsvCompilation.CreateFromProjectAsync(input.Split(','), conditionalSymbols.Concat(new[] { multioutSymbol }).ToArray(), cancellationToken)
+.ConfigureAwait(false) : await CsvCompilation.CreateFromDirectoryAsync(input, conditionalSymbols.Concat(new[] { multioutSymbol }).ToArray(), cancellationToken).ConfigureAwait(false);
                 var collector = new TypeCollector(compilation, true, useMapMode, x => Console.WriteLine(x));
 
                 logger("Project Compilation Complete:" + sw.Elapsed.ToString());
