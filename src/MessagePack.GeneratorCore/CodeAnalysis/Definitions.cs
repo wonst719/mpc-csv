@@ -26,13 +26,6 @@ namespace MessagePackCompiler.CodeAnalysis
 
         public string Namespace { get; set; }
 
-        public bool IsIntKey { get; set; }
-
-        public bool IsStringKey
-        {
-            get { return !this.IsIntKey; }
-        }
-
         public bool IsClass { get; set; }
 
         public bool IsStruct
@@ -56,14 +49,7 @@ namespace MessagePackCompiler.CodeAnalysis
         {
             get
             {
-                if (this.IsStringKey)
-                {
-                    return this.Members.Count(x => x.IsReadable);
-                }
-                else
-                {
-                    return this.MaxKey;
-                }
+                return this.Members.Count(x => x.IsReadable);
             }
         }
 

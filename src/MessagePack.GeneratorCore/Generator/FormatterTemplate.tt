@@ -34,8 +34,6 @@ namespace <#= Namespace #>
 <# } #>
 <# } #>
 
-<# if( objInfo.IsStringKey) { #>
-
         private readonly global::MessagePack.Internal.AutomataDictionary ____keyMapping;
         private readonly byte[][] ____stringByteKeys;
 
@@ -55,7 +53,6 @@ namespace <#= Namespace #>
 <# } #>
             };
         }
-<# } #>
 
         public void Serialize(ref MessagePackWriter writer, <#= objInfo.FullName #> value, global::MessagePack.MessagePackSerializerOptions options)
         {
@@ -73,22 +70,11 @@ namespace <#= Namespace #>
 <# } else if(objInfo.HasIMessagePackSerializationCallbackReceiver) { #>
             value.OnBeforeSerialize();
 <# } #>
-<# if( objInfo.IsIntKey) { #>
-            writer.WriteArrayHeader(<#= objInfo.MaxKey + 1 #>);
-<# } else { #>
             writer.WriteMapHeader(<#= objInfo.WriteCount #>);
-<# } #>
-<# if(objInfo.IsIntKey) { #>
-<# for(var i =0; i<= objInfo.MaxKey; i++) { var member = objInfo.GetMember(i); #>
-<# if( member == null) { #>
-            writer.WriteNil();
-<# } else { #>
-            <#= member.GetSerializeMethodString() #>;
-<# } } } else { #>
 <# var index = 0; foreach(var x in objInfo.Members) { #>
             writer.WriteRaw(this.____stringByteKeys[<#= index++ #>]);
             <#= x.GetSerializeMethodString() #>;
-<# } } #>
+<# } #>
         }
 
         public <#= objInfo.FullName #> Deserialize(ref MessagePackReader reader, global::MessagePack.MessagePackSerializerOptions options)
@@ -104,18 +90,13 @@ namespace <#= Namespace #>
 
             options.Security.DepthStep(ref reader);
             IFormatterResolver formatterResolver = options.Resolver;
-<# if(objInfo.IsStringKey) { #>
             var length = reader.ReadMapHeader();
-<# } else { #>
-            var length = reader.ReadArrayHeader();
-<# } #>
 <# foreach(var x in objInfo.Members) { #>
             var __<#= x.Name #>__ = default(<#= x.Type #>);
 <# } #>
 
             for (int i = 0; i < length; i++)
             {
-<# if(objInfo.IsStringKey) { #>
                 ReadOnlySpan<byte> stringKey = global::MessagePack.Internal.CodeGenHelpers.ReadStringSpan(ref reader);
                 int key;
                 if (!this.____keyMapping.TryGetValue(stringKey, out key))
@@ -123,9 +104,6 @@ namespace <#= Namespace #>
                     reader.Skip();
                     continue;
                 }
-<# } else { #>
-                var key = i;
-<# } #>
 
                 switch (key)
                 {

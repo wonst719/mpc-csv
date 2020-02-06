@@ -933,8 +933,7 @@ namespace MessagePackCompiler.CodeAnalysis
             {
                 IsClass = isClass,
                 ConstructorParameters = constructorParameters.ToArray(),
-                IsIntKey = isIntKey,
-                Members = isIntKey ? intMembers.Values.ToArray() : stringMembers.Values.ToArray(),
+                Members = stringMembers.Values.ToArray(),
                 Name = type.ToDisplayString(ShortTypeNameFormat).Replace(".", "_"),
                 FullName = type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat),
                 Namespace = type.ContainingNamespace.IsGlobalNamespace ? null : type.ContainingNamespace.ToDisplayString(),
