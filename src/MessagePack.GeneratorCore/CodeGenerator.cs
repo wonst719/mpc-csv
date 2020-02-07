@@ -65,43 +65,59 @@ namespace MessagePackCompiler
                 if (Path.GetExtension(output) == ".cs")
                 {
                     // SingleFile Output
-                    var objectFormatterTemplates = objectInfo
+                    //var objectFormatterTemplates = objectInfo
+                    //    .GroupBy(x => x.Namespace)
+                    //    .Select(x => new FormatterTemplate()
+                    //    {
+                    //        Namespace = namespaceDot + "Formatters" + ((x.Key == null) ? string.Empty : "." + x.Key),
+                    //        ObjectSerializationInfos = x.ToArray(),
+                    //    })
+                    //    .ToArray();
+                    //
+                    //var enumFormatterTemplates = enumInfo
+                    //    .GroupBy(x => x.Namespace)
+                    //    .Select(x => new EnumTemplate()
+                    //    {
+                    //        Namespace = namespaceDot + "Formatters" + ((x.Key == null) ? string.Empty : "." + x.Key),
+                    //        EnumSerializationInfos = x.ToArray(),
+                    //    })
+                    //    .ToArray();
+
+                    var csvSerializerTemplates = objectInfo
                         .GroupBy(x => x.Namespace)
-                        .Select(x => new FormatterTemplate()
+                        .Select(x => new CsvSerializerTemplate()
                         {
-                            Namespace = namespaceDot + "Formatters" + ((x.Key == null) ? string.Empty : "." + x.Key),
+                            Namespace = namespaceDot + "Serializers" + ((x.Key == null) ? string.Empty : "." + x.Key),
                             ObjectSerializationInfos = x.ToArray(),
                         })
                         .ToArray();
 
-                    var enumFormatterTemplates = enumInfo
-                        .GroupBy(x => x.Namespace)
-                        .Select(x => new EnumTemplate()
-                        {
-                            Namespace = namespaceDot + "Formatters" + ((x.Key == null) ? string.Empty : "." + x.Key),
-                            EnumSerializationInfos = x.ToArray(),
-                        })
-                        .ToArray();
 
-                    var resolverTemplate = new ResolverTemplate()
-                    {
-                        Namespace = namespaceDot + "Resolvers",
-                        FormatterNamespace = namespaceDot + "Formatters",
-                        ResolverName = resolverName,
-                        RegisterInfos = genericInfo.Cast<IResolverRegisterInfo>().Concat(enumInfo).Concat(objectInfo).ToArray(),
-                    };
+                    //var resolverTemplate = new ResolverTemplate()
+                    //{
+                    //    Namespace = namespaceDot + "Resolvers",
+                    //    FormatterNamespace = namespaceDot + "Formatters",
+                    //    ResolverName = resolverName,
+                    //    RegisterInfos = genericInfo.Cast<IResolverRegisterInfo>().Concat(enumInfo).Concat(objectInfo).ToArray(),
+                    //};
 
                     var sb = new StringBuilder();
-                    sb.AppendLine(resolverTemplate.TransformText());
-                    sb.AppendLine();
-                    foreach (var item in enumFormatterTemplates)
-                    {
-                        var text = item.TransformText();
-                        sb.AppendLine(text);
-                    }
+                    //sb.AppendLine(resolverTemplate.TransformText());
+                    //sb.AppendLine();
+                    //foreach (var item in enumFormatterTemplates)
+                    //{
+                    //    var text = item.TransformText();
+                    //    sb.AppendLine(text);
+                    //}
+                    //
+                    //sb.AppendLine();
+                    //foreach (var item in objectFormatterTemplates)
+                    //{
+                    //    var text = item.TransformText();
+                    //    sb.AppendLine(text);
+                    //}
 
-                    sb.AppendLine();
-                    foreach (var item in objectFormatterTemplates)
+                    foreach (var item in csvSerializerTemplates)
                     {
                         var text = item.TransformText();
                         sb.AppendLine(text);
@@ -121,17 +137,17 @@ namespace MessagePackCompiler
                 else
                 {
                     // Multiple File output
-                    foreach (var x in objectInfo)
-                    {
-                        var template = new FormatterTemplate()
-                        {
-                            Namespace = namespaceDot + "Formatters" + ((x.Namespace == null) ? string.Empty : "." + x.Namespace),
-                            ObjectSerializationInfos = new[] { x },
-                        };
-
-                        var text = template.TransformText();
-                        await OutputToDirAsync(output, template.Namespace, x.Name + "Formatter", multioutSymbol, text, cancellationToken).ConfigureAwait(false);
-                    }
+                    //foreach (var x in objectInfo)
+                    //{
+                    //    var template = new FormatterTemplate()
+                    //    {
+                    //        Namespace = namespaceDot + "Formatters" + ((x.Namespace == null) ? string.Empty : "." + x.Namespace),
+                    //        ObjectSerializationInfos = new[] { x },
+                    //    };
+                    //
+                    //    var text = template.TransformText();
+                    //    await OutputToDirAsync(output, template.Namespace, x.Name + "Formatter", multioutSymbol, text, cancellationToken).ConfigureAwait(false);
+                    //}
 
                     // FIXME: Test
                     foreach (var x in objectInfo)
@@ -146,27 +162,27 @@ namespace MessagePackCompiler
                         await OutputToDirAsync(output, template.Namespace, x.Name + "Serializer", multioutSymbol, text, cancellationToken).ConfigureAwait(false);
                     }
 
-                    foreach (var x in enumInfo)
-                    {
-                        var template = new EnumTemplate()
-                        {
-                            Namespace = namespaceDot + "Formatters" + ((x.Namespace == null) ? string.Empty : "." + x.Namespace),
-                            EnumSerializationInfos = new[] { x },
-                        };
-
-                        var text = template.TransformText();
-                        await OutputToDirAsync(output, template.Namespace, x.Name + "Formatter", multioutSymbol, text, cancellationToken).ConfigureAwait(false);
-                    }
-
-                    var resolverTemplate = new ResolverTemplate()
-                    {
-                        Namespace = namespaceDot + "Resolvers",
-                        FormatterNamespace = namespaceDot + "Formatters",
-                        ResolverName = resolverName,
-                        RegisterInfos = genericInfo.Cast<IResolverRegisterInfo>().Concat(enumInfo).Concat(objectInfo).ToArray(),
-                    };
-
-                    await OutputToDirAsync(output, resolverTemplate.Namespace, resolverTemplate.ResolverName, multioutSymbol, resolverTemplate.TransformText(), cancellationToken).ConfigureAwait(false);
+                    //foreach (var x in enumInfo)
+                    //{
+                    //    var template = new EnumTemplate()
+                    //    {
+                    //        Namespace = namespaceDot + "Formatters" + ((x.Namespace == null) ? string.Empty : "." + x.Namespace),
+                    //        EnumSerializationInfos = new[] { x },
+                    //    };
+                    //
+                    //    var text = template.TransformText();
+                    //    await OutputToDirAsync(output, template.Namespace, x.Name + "Formatter", multioutSymbol, text, cancellationToken).ConfigureAwait(false);
+                    //}
+                    //
+                    //var resolverTemplate = new ResolverTemplate()
+                    //{
+                    //    Namespace = namespaceDot + "Resolvers",
+                    //    FormatterNamespace = namespaceDot + "Formatters",
+                    //    ResolverName = resolverName,
+                    //    RegisterInfos = genericInfo.Cast<IResolverRegisterInfo>().Concat(enumInfo).Concat(objectInfo).ToArray(),
+                    //};
+                    //
+                    //await OutputToDirAsync(output, resolverTemplate.Namespace, resolverTemplate.ResolverName, multioutSymbol, resolverTemplate.TransformText(), cancellationToken).ConfigureAwait(false);
                 }
 
                 if (objectInfo.Length == 0 && enumInfo.Length == 0 && genericInfo.Length == 0)

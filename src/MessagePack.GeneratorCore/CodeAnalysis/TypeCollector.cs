@@ -32,6 +32,7 @@ namespace MessagePackCompiler.CodeAnalysis
         //internal readonly INamedTypeSymbol MessagePackFormatterAttribute;
 
         internal readonly INamedTypeSymbol CsvObjectAttribute;
+        internal readonly INamedTypeSymbol CsvColumnAttribute;
         internal readonly INamedTypeSymbol CsvIgnoreAttribute;
         internal readonly INamedTypeSymbol SerializationConstructorAttribute;
         internal readonly INamedTypeSymbol IgnoreDataMemberAttribute;
@@ -99,6 +100,12 @@ namespace MessagePackCompiler.CodeAnalysis
             if (CsvObjectAttribute == null)
             {
                 throw new InvalidOperationException("failed to get metadata of Foundation.Serialization.Csv.CsvObjectAttribute");
+            }
+
+            CsvColumnAttribute = compilation.GetTypeByMetadataName("Foundation.Serialization.Csv.CsvColumnAttribute");
+            if (CsvColumnAttribute == null)
+            {
+                throw new InvalidOperationException("failed to get metadata of Foundation.Serialization.Csv.CsvColumnAttribute");
             }
 
             CsvIgnoreAttribute = compilation.GetTypeByMetadataName("Foundation.Serialization.Csv.CsvIgnoreAttribute");
@@ -391,12 +398,13 @@ namespace MessagePackCompiler.CodeAnalysis
 
                 //var customFormatterAttr = item.GetAttributes().FirstOrDefault(x => x.AttributeClass.ApproximatelyEqual(this.typeReferences.MessagePackFormatterAttribute))?.ConstructorArguments[0].Value as INamedTypeSymbol;
                 var customFormatterAttr = item.Type.GetAttributes().FirstOrDefault(x => x.AttributeClass.ApproximatelyEqual(this.typeReferences.TypeConverterAttribute))?.ConstructorArguments[0].Value as INamedTypeSymbol;
+                var csvColumnAttrVal = item.GetAttributes().FirstOrDefault(x => x.AttributeClass.ApproximatelyEqual(this.typeReferences.CsvColumnAttribute))?.ConstructorArguments[0].Value as string;
 
                 var member = new MemberSerializationInfo
                 {
                     IsReadable = (item.GetMethod != null) && item.GetMethod.DeclaredAccessibility == Accessibility.Public && !item.IsStatic,
                     IsWritable = (item.SetMethod != null) && item.SetMethod.DeclaredAccessibility == Accessibility.Public && !item.IsStatic,
-                    StringKey = item.Name,
+                    StringKey = csvColumnAttrVal != null ? csvColumnAttrVal : Foundation.Serialization.Csv.Internal.StringMutator.ToSnakeCase(item.Name),
                     IsProperty = true,
                     IsField = false,
                     Name = item.Name,
@@ -404,7 +412,7 @@ namespace MessagePackCompiler.CodeAnalysis
                     ShortTypeName = item.Type.ToDisplayString(BinaryWriteFormat),
                     CustomFormatterTypeName = customFormatterAttr?.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat),
                 };
-                if (!member.IsReadable && !member.IsWritable)
+                if (/*!member.IsReadable && */!member.IsWritable)
                 {
                     continue;
                 }
@@ -429,6 +437,7 @@ namespace MessagePackCompiler.CodeAnalysis
 
                 //var customFormatterAttr = item.GetAttributes().FirstOrDefault(x => x.AttributeClass.ApproximatelyEqual(this.typeReferences.MessagePackFormatterAttribute))?.ConstructorArguments[0].Value as INamedTypeSymbol;
                 var customFormatterAttr = item.Type.GetAttributes().FirstOrDefault(x => x.AttributeClass.ApproximatelyEqual(this.typeReferences.TypeConverterAttribute))?.ConstructorArguments[0].Value as INamedTypeSymbol;
+                var csvColumnAttr = item.GetAttributes().FirstOrDefault(x => x.AttributeClass.ApproximatelyEqual(this.typeReferences.CsvColumnAttribute))?.ConstructorArguments[0].Value as INamedTypeSymbol;
 
                 var member = new MemberSerializationInfo
                 {

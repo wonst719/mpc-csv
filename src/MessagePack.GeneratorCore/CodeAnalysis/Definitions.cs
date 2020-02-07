@@ -91,6 +91,8 @@ namespace MessagePackCompiler.CodeAnalysis
 
         public string Name { get; set; }
 
+        public string ColumnName { get; set; }
+
         public string ShortTypeName { get; set; }
 
         public string CustomFormatterTypeName { get; set; }
