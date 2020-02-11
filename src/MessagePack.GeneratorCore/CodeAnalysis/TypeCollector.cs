@@ -396,7 +396,6 @@ namespace MessagePackCompiler.CodeAnalysis
                     continue;
                 }
 
-                //var customFormatterAttr = item.GetAttributes().FirstOrDefault(x => x.AttributeClass.ApproximatelyEqual(this.typeReferences.MessagePackFormatterAttribute))?.ConstructorArguments[0].Value as INamedTypeSymbol;
                 var customFormatterAttr = item.Type.GetAttributes().FirstOrDefault(x => x.AttributeClass.ApproximatelyEqual(this.typeReferences.TypeConverterAttribute))?.ConstructorArguments[0].Value as INamedTypeSymbol;
                 var csvColumnAttrVal = item.GetAttributes().FirstOrDefault(x => x.AttributeClass.ApproximatelyEqual(this.typeReferences.CsvColumnAttribute))?.ConstructorArguments[0].Value as string;
 
@@ -412,7 +411,7 @@ namespace MessagePackCompiler.CodeAnalysis
                     ShortTypeName = item.Type.ToDisplayString(BinaryWriteFormat),
                     CustomFormatterTypeName = customFormatterAttr?.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat),
                 };
-                if (/*!member.IsReadable && */!member.IsWritable)
+                if (!member.IsReadable && !member.IsWritable)
                 {
                     continue;
                 }
@@ -435,15 +434,14 @@ namespace MessagePackCompiler.CodeAnalysis
                     continue;
                 }
 
-                //var customFormatterAttr = item.GetAttributes().FirstOrDefault(x => x.AttributeClass.ApproximatelyEqual(this.typeReferences.MessagePackFormatterAttribute))?.ConstructorArguments[0].Value as INamedTypeSymbol;
                 var customFormatterAttr = item.Type.GetAttributes().FirstOrDefault(x => x.AttributeClass.ApproximatelyEqual(this.typeReferences.TypeConverterAttribute))?.ConstructorArguments[0].Value as INamedTypeSymbol;
-                var csvColumnAttr = item.GetAttributes().FirstOrDefault(x => x.AttributeClass.ApproximatelyEqual(this.typeReferences.CsvColumnAttribute))?.ConstructorArguments[0].Value as INamedTypeSymbol;
+                var csvColumnAttrVal = item.GetAttributes().FirstOrDefault(x => x.AttributeClass.ApproximatelyEqual(this.typeReferences.CsvColumnAttribute))?.ConstructorArguments[0].Value as string;
 
                 var member = new MemberSerializationInfo
                 {
                     IsReadable = item.DeclaredAccessibility == Accessibility.Public && !item.IsStatic,
                     IsWritable = item.DeclaredAccessibility == Accessibility.Public && !item.IsReadOnly && !item.IsStatic,
-                    StringKey = item.Name,
+                    StringKey = csvColumnAttrVal != null ? csvColumnAttrVal : Foundation.Serialization.Csv.Internal.StringMutator.ToSnakeCase(item.Name),
                     IsProperty = false,
                     IsField = true,
                     Name = item.Name,

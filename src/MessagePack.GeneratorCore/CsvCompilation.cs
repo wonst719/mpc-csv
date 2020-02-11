@@ -25,21 +25,26 @@ using System;
 
 namespace Foundation.Serialization.Csv
 {
-    [AttributeUsage(AttributeTargets.Class | AttributeTargets.Struct, AllowMultiple = false, Inherited = true)]
-    public class CsvObjectAttribute : Attribute
-    {
-        public bool KeyAsPropertyName { get; private set; }
-
-        public MessagePackObjectAttribute(bool keyAsPropertyName = false)
-        {
-            this.KeyAsPropertyName = keyAsPropertyName;
-        }
-    }
-
-    [AttributeUsage(AttributeTargets.Property | AttributeTargets.Field, AllowMultiple = false, Inherited = true)]
-    public class CsvIgnoreAttribute : Attribute
-    {
-    }
+    //[AttributeUsage(AttributeTargets.Class | AttributeTargets.Struct, AllowMultiple = false, Inherited = true)]
+    //public class CsvObjectAttribute : Attribute
+    //{
+    //}
+    //
+    //[AttributeUsage(AttributeTargets.Property | AttributeTargets.Field, AllowMultiple = false, Inherited = true)]
+    //public class CsvColumnAttribute : Attribute
+    //{
+    //    public string ColumnName { get; private set; }
+    //
+    //    public CsvColumnAttribute(string name)
+    //    {
+    //        ColumnName = name;
+    //    }
+    //}
+    //
+    //[AttributeUsage(AttributeTargets.Property | AttributeTargets.Field, AllowMultiple = false, Inherited = true)]
+    //public class CsvIgnoreAttribute : Attribute
+    //{
+    //}
 
     [AttributeUsage(AttributeTargets.Constructor, AllowMultiple = false, Inherited = true)]
     public class SerializationConstructorAttribute : Attribute
