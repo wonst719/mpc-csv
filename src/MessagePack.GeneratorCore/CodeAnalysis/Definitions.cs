@@ -18,6 +18,15 @@ namespace MessagePackCompiler.CodeAnalysis
         string FormatterName { get; }
     }
 
+    public class CsvResolverRegisterInfo
+    {
+        public string FullName { get; set; }
+
+        public string ResolverName { get; set; }
+
+        public string SerializerNamespace { get; set; }
+    }
+
     public class ObjectSerializationInfo : IResolverRegisterInfo
     {
         public string Name { get; set; }

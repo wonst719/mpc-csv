@@ -24,6 +24,15 @@ namespace MessagePackCompiler.Generator
         public ObjectSerializationInfo[] ObjectSerializationInfos { get; set; }
     }
 
+    public partial class CsvResolverTemplate
+    {
+        public string Namespace { get; set; }
+
+        public string ResolverName { get; set; } = "GeneratedResolver";
+
+        public CsvResolverRegisterInfo[] RegisterInfos { get; set; }
+    }
+
     public partial class ResolverTemplate
     {
         public string Namespace { get; set; }

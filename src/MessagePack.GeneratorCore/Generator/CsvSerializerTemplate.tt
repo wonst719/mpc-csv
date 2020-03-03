@@ -14,7 +14,7 @@ namespace <#= Namespace #>
     using Foundation.Serialization.Csv.Internal;
 
 <# foreach(var objInfo in ObjectSerializationInfos) { #>
-    public sealed class <#= objInfo.Name #>Serializer
+    public sealed class <#= objInfo.Name #>Serializer : Foundation.Serialization.Csv.Internal.ISerializer<<#= objInfo.Name #>>
     {
         List<string> headerColumns = new List<string>();
         List<<#= objInfo.Name #>> rows = new List<<#= objInfo.Name #>>(32);
@@ -73,6 +73,14 @@ namespace <#= Namespace #>
             parser.Parse(data, 0, data.Length);
 
             return rows;
+        }
+    }
+
+    public sealed class <#= objInfo.Name #>SerializerResolver : Foundation.Serialization.Csv.Internal.ISerializerResolver
+    {
+        public ISerializer Resolve()
+        {
+            return new <#= objInfo.Name #>Serializer();
         }
     }
 <# } #>

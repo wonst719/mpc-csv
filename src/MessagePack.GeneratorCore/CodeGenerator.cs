@@ -92,16 +92,20 @@ namespace MessagePackCompiler
                         })
                         .ToArray();
 
-
-                    //var resolverTemplate = new ResolverTemplate()
-                    //{
-                    //    Namespace = namespaceDot + "Resolvers",
-                    //    FormatterNamespace = namespaceDot + "Formatters",
-                    //    ResolverName = resolverName,
-                    //    RegisterInfos = genericInfo.Cast<IResolverRegisterInfo>().Concat(enumInfo).Concat(objectInfo).ToArray(),
-                    //};
+                    var csvResolverTemplate = new CsvResolverTemplate()
+                    {
+                        Namespace = namespaceDot + "Resolvers",
+                        ResolverName = resolverName,
+                        RegisterInfos = objectInfo.Select(x => new CsvResolverRegisterInfo
+                        {
+                            FullName = x.FullName,
+                            SerializerNamespace = namespaceDot + "Serializers" + ((x.Namespace == null) ? string.Empty : "." + x.Namespace),
+                            ResolverName = x.Name + "SerializerResolver"
+                        }).ToArray()
+                    };
 
                     var sb = new StringBuilder();
+                    sb.AppendLine(csvResolverTemplate.TransformText());
                     //sb.AppendLine(resolverTemplate.TransformText());
                     //sb.AppendLine();
                     //foreach (var item in enumFormatterTemplates)
@@ -136,6 +140,7 @@ namespace MessagePackCompiler
                 }
                 else
                 {
+                    throw new NotImplementedException("Multi file output is not implemented");
                     // Multiple File output
                     //foreach (var x in objectInfo)
                     //{
@@ -182,6 +187,13 @@ namespace MessagePackCompiler
                     //    RegisterInfos = genericInfo.Cast<IResolverRegisterInfo>().Concat(enumInfo).Concat(objectInfo).ToArray(),
                     //};
                     //
+                    //var csvResolverTemplate = new CsvResolverTemplate()
+                    //{
+                    //    Namespace = namespaceDot + "Resolvers",
+                    //    ResolverName = resolverName,
+                    //    RegisterInfos = objectInfo,
+                    //};
+
                     //await OutputToDirAsync(output, resolverTemplate.Namespace, resolverTemplate.ResolverName, multioutSymbol, resolverTemplate.TransformText(), cancellationToken).ConfigureAwait(false);
                 }
 

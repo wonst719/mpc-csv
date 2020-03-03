@@ -9,6 +9,11 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Include="Generator\CsvResolverTemplate.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>CsvResolverTemplate.tt</DependentUpon>
+    </None>
     <None Include="Generator\CsvSerializerTemplate.cs">
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
@@ -29,6 +34,11 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Compile Update="Generator\CsvResolverTemplate.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>CsvResolverTemplate.tt</DependentUpon>
+    </Compile>
     <Compile Update="Generator\CsvSerializerTemplate.cs">
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
@@ -57,6 +67,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Update="Generator\CsvResolverTemplate.tt">
+      <Generator>TextTemplatingFilePreprocessor</Generator>
+      <LastGenOutput>CsvResolverTemplate.cs</LastGenOutput>
+    </None>
     <None Update="Generator\CsvSerializerTemplate.tt">
       <Generator>TextTemplatingFilePreprocessor</Generator>
       <LastGenOutput>CsvSerializerTemplate.cs</LastGenOutput>
